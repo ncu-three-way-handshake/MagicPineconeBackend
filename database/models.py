@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from database.db_connect import Base
 
@@ -40,3 +40,8 @@ class Course(Base):
 
     department = relationship("Department", back_populates="courses")
     college = relationship("College")
+
+class SystemStatus(Base):
+    __tablename__ = "system_status"
+    id = Column(Integer, primary_key=True, index=True)
+    last_course_sync = Column(DateTime(timezone=True), nullable=True)

@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.orm import Session
 from database.db_connect import get_db
-from database.models import Course
+from database.models import Course, SystemStatus
 from internal.course_fetcher import sync_courses_to_db
 from schemas.course_schema import CourseResult
 import logging
@@ -66,7 +66,11 @@ async def query_courses(
     total_count = query.count()
     courses = query.offset(skip).limit(limit).all()
 
+    status = db.query(SystemStatus).filter(SystemStatus.id == 1).first()
+    last_updated = status.last_course_sync if status else None
+
     return CourseResult(
         total_count=total_count,
+        last_updated=last_updated,
         courses=courses
     )

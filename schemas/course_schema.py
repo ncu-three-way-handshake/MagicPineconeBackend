@@ -1,5 +1,6 @@
 import json
 from typing import Optional, List, Any
+from datetime import datetime
 
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 
@@ -60,4 +61,5 @@ class CourseResponse(BaseModel):
 
 class CourseResult(BaseModel):
     total_count: int = Field(..., description="符合條件的課程總數")
+    last_updated: Optional[datetime] = Field(None, description="資料庫最後更新時間")
     courses: List[CourseResponse] = Field(..., description="查詢到的課程列表")

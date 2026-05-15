@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 import json
 
-from database.models import College, Department, Course
+from database.models import College, Department, Course, SystemStatus
+from datetime import datetime, timezone
 # Note: since sqlite ON CONFLICT is different from PostgreSQL we will use a generic merge if it's not strictly postgres,
 # but the prompt mentions "postgresql db", so we can assume PostgreSQL might be used.
 # Since the user might be testing with SQLite (based on db_connect fallback), let's use session.merge() for simple UPSERT.
@@ -224,6 +225,14 @@ async def sync_courses_to_db(db: Session):
             db_course = db.query(Course).filter(Course.serial_no == extra['serial_no']).first()
             if db_course:
                 db_course.course_type = extra['course_type']
+        
+        
+        status = db.query(SystemStatus).filter(SystemStatus.id == 1).first()
+        if not status:
+            status = SystemStatus(id=1, last_course_sync=datetime.now(timezone.utc))
+            db.add(status)
+        else:
+            status.last_course_sync = datetime.now(timezone.utc)
         
         db.commit()
         logger.info("Course synchronization completed successfully.")
